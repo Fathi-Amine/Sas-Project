@@ -22,6 +22,7 @@ struct PurchasedItems{
 	int purchasedCode, purchasedQuantity;
 	float priceOfPurchase,pPrice;
 	struct date dop;
+	
 };
 struct Details item[60];
 struct PurchasedItems purchased[60];
@@ -39,6 +40,7 @@ void searchByCode();
 void stockStatus();
 void stockSupply();
 void deleteItem();
+void totalSells();
 //Logic Functions
 
 
@@ -46,6 +48,8 @@ int pCounter = 0;
 int tracer = 0;
 int purchaseTracer = 0;
 int numOfPurchases = 0;
+float Min =0;
+float Max =0;
 /* run this program using the console pauser or add your own getch, system("pause") or input loop */
 
 int main(int argc, char *argv[]) {
@@ -235,9 +239,20 @@ void purchaseItem(){
 				purchased[j].pPrice = item[i].price;
 				purchased[j].priceOfPurchase =  purchased[j].pPrice + (purchased[j].pPrice * 15/100);
 				numOfPurchases++;
+				
+				if(Max < purchased[j].priceOfPurchase)
+				
+						Max = purchased[j].priceOfPurchase;
+						
+				if(Min > purchased[j].priceOfPurchase || Min == 0)
+				
+						Min = purchased[j].priceOfPurchase;
+				
 			}
 		}
 	}
+	
+	
 	showMenu();
 }
 
@@ -246,7 +261,7 @@ void purchaseItem(){
 void searchByCode(){
 	int code, found = 0, choose, quantity;
 	int i, j;
-	printf("Voulez vous rechercher par code our par quantite ??\n Choisissez 1 pour la recherche par code et 2 pour la recherche par quantité et 3 pour rechercher les stocks en rupture");
+	printf("Voulez vous rechercher par code our par quantite ??\n Choisissez 1 pour la recherche par code et 2 pour la recherche par quantité et 3 pour rechercher les stocks en rupture \n");
 	scanf("%d", &choose);
 	if(choose == 1){
 		printf("Veuillez entrer le code de medicament voulez vous rechercher");
@@ -284,7 +299,7 @@ void stockStatus(){
 			printf("%s \n", item[i].name);
 			printf("%d \n", item[i].code);
 			printf("%d \n", item[i].quantity);
-			printf("%d \n", item[i].price);
+			printf("%.2f \n", item[i].price);
 			threeItemsOrLess++;
 		}
 	}
@@ -293,7 +308,6 @@ void stockStatus(){
 		printf("Il y a pas d'element en stock dont la quantite est inferieure a 3 \n");
 	}
 	
-	printf("yeay it worked");
 }
 
 // Supply stock and update it function
@@ -315,9 +329,7 @@ void stockSupply(){
 // Delete Item Function 
 
 void deleteItem(){
-	int i,j, deleteCode, itemCode, tOrF = 0;
-	float deletePrice, deletePriceTTC;
-	char deleteName[50] = {0};
+	int i,j, itemCode, tOrF = 0;
 	
 	printf("Veuillez entrer le code de medicament souhaitez vous supprimer");
 	scanf("%d", &itemCode);
@@ -325,16 +337,17 @@ void deleteItem(){
 		if(item[i].code == itemCode){
 			for(j = i; j < pCounter; j++){
 				item[j] = item[j+1];
-				pCounter--;
 				tOrF++;
 			}
+			printf("\n medicament supprime");
+			pCounter--;
+			tracer--;
 		}
+		
 	}
 	
-	if(tOrF = 0){
+	if(tOrF == 0){
 		printf("Il y aucune medicament avec ce code");
-	}else {
-		printf(" medicament supprime");
 	}
 	showMenu();
 }
@@ -343,10 +356,27 @@ void deleteItem(){
 
 void totalSells(){
 	int i;
-	float total, soldProduct;
-	for(i = 0; i < numOfPurchases; i++){
+	float total = 0, soldProduct, la_moyenne;
+	for(i = 0; i <= numOfPurchases; i++){
 		soldProduct = purchased[i].priceOfPurchase * purchased[i].purchasedQuantity;
-		total += soldProduct;
+		total = total + soldProduct;
 	}
-	printf("/.2f", total);
+	for(i = 0; i<numOfPurchases; i++){
+		/*printf("%s                     %d                    %d              %d                 %d           %d/%d/%d\n", purchased[i].name, purchased[i].purchasedCode, purchased[i].purchasedQuantity, purchased[i].pPrice, purchased[i].priceOfPurchase, purchased[i].dop.day, purchased[i].dop.month,purchased[i].dop.year);
+		printf("==========================================================================================\n");
+			printf("\t \t \t ---------------------------------------------------------------------\n");*/
+		printf("\t \t \t Le nom de medicament : %s \n", purchased[i].name);
+		printf("\t \t \t Le code de medicament : %d \n", purchased[i].purchasedCode);
+		printf("\t \t \t La quantite en stock : %d \n",  purchased[i].purchasedQuantity);
+		printf("\t \t \t Le prix HT : %.2f \n", purchased[i].pPrice);
+		printf("\t \t \t Le prix TTC : %.2f \n", purchased[i].priceOfPurchase);
+		printf("\t \t \t Total d'achat' : %.2f \n", soldProduct);
+		printf("\t \t \t La date d'achat' : %d/%d/%d \n", purchased[i].dop.day, purchased[i].dop.month,purchased[i].dop.year);
+		printf("\t \t \t ---------------------------------------------------------------------\n");
+	}
+	la_moyenne = total/numOfPurchases;
+	printf("%.2f \n", total);
+	printf("%.2f \n", la_moyenne);
+	printf("%.2f \n", Max);
+	printf("%.2f \n", Min);
 }
